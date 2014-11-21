@@ -205,6 +205,9 @@ Class WPOA {
 		// load the core plugin scripts/styles:
 		wp_enqueue_script('wpoa-script', plugin_dir_url( __FILE__ ) . 'wp-oauth.js', array());
 		wp_enqueue_style('wpoa-style', plugin_dir_url( __FILE__ ) . 'wp-oauth.css', array());
+
+		//Save the home page url
+		$_SESSION["WPOA"]["HOME_PAGE"] = $wpoa_cvars['url'];
 	}
 	
 	// init scripts and styles for use on BACKEND PAGES:
@@ -230,6 +233,9 @@ Class WPOA {
 		wp_enqueue_style('wpoa-style', plugin_dir_url( __FILE__ ) . 'wp-oauth.css', array());
 		// load the default wordpress media screen:
 		wp_enqueue_media();
+
+		//Save the home page url
+		$_SESSION["WPOA"]["HOME_PAGE"] = $wpoa_cvars['url'];
 	}
 	
 	// init scripts and styles for use on the LOGIN PAGE:
@@ -257,6 +263,9 @@ Class WPOA {
 		// load the core plugin scripts/styles:
 		wp_enqueue_script('wpoa-script', plugin_dir_url( __FILE__ ) . 'wp-oauth.js', array());
 		wp_enqueue_style('wpoa-style', plugin_dir_url( __FILE__ ) . 'wp-oauth.css', array());
+
+		//Save the home page url
+		$_SESSION["WPOA"]["HOME_PAGE"] = $wpoa_cvars['url'];
 	}
 	
 	// add a settings link to the plugins page:
@@ -382,6 +391,7 @@ Class WPOA {
 	
 	// ends the login request by clearing the login state and redirecting the user to the desired page:
 	function wpoa_end_login($msg) {
+		$home_page_url = $_SESSION["WPOA"]["HOME_PAGE"];
 		$last_url = $_SESSION["WPOA"]["LAST_URL"];
 		$_SESSION["WPOA"]["RESULT"] = $msg;
 		$this->wpoa_clear_login_state();
@@ -389,7 +399,7 @@ Class WPOA {
 		$redirect_url = "";
 		switch ($redirect_method) {
 			case "home_page":
-				$redirect_url = site_url();
+				$redirect_url = $home_page_url;
 				break;
 			case "last_page":
 				$redirect_url = $last_url;
@@ -407,6 +417,7 @@ Class WPOA {
 				$redirect_url = get_option('wpoa_login_redirect_url');
 				break;
 		}
+		
 		header("Location: " . $redirect_url);
 		die();
 	}
@@ -506,6 +517,7 @@ Class WPOA {
 		unset($_SESSION["WPOA"]["EXPIRES_IN"]);
 		unset($_SESSION["WPOA"]["EXPIRES_AT"]);
 		unset($_SESSION["WPOA"]["LAST_URL"]);
+		unset($_SESSION["WPOA"]["HOME_PAGE"]);
 	}
 	
 	// ===================================
@@ -538,10 +550,10 @@ Class WPOA {
 			'align' => 'left',
 			'show_login' => 'conditional',
 			'show_logout' => 'conditional',
-			'logged_out_title' => 'Please login:',
-			'logged_in_title' => 'You are already logged in.',
-			'logging_in_title' => 'Logging in...',
-			'logging_out_title' => 'Logging out...',
+			'logged_out_title' => __('Please login:', 'wp-oauth'),
+			'logged_in_title' => __('You are already logged in.', 'wp-oauth'),
+			'logging_in_title' => __('Logging in...', 'wp-oauth'),
+			'logging_out_title' => __('Logging out...', 'wp-oauth'),
 			'style' => '',
 			'class' => '',
 		), $atts );
@@ -589,8 +601,10 @@ Class WPOA {
 	function wpoa_login_buttons() {
 		$html = "";
 		$url = get_bloginfo('url');
-		$redirect_to = urlencode($_GET['redirect_to']);
-		if ($redirect_to) {$redirect_to = "&redirect_to=" . $redirect_to;}
+		if(isset($_GET['redirect_to']))
+			$redirect_to = "&redirect_to=" .urlencode($_GET['redirect_to']);
+		else 
+			$redirect_to = '';
 		//if (get_option('wpoa_google_api_enabled')) {$html .= "<a id='wpoa-login-google' class='wpoa-login-button' href='$url?connect=google$redirect_to' onclick='wpoa.loginGoogle(); return false;'>Google</a>";}
 		if (get_option('wpoa_google_api_enabled')) {$html .= "<a id='wpoa-login-google' class='wpoa-login-button' href='$url?connect=google$redirect_to'>Google</a>";}
 		if (get_option('wpoa_facebook_api_enabled')) {$html .= "<a id='wpoa-login-facebook' class='wpoa-login-button' href='$url?connect=facebook$redirect_to'>Facebook</a>";}

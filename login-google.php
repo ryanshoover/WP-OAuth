@@ -9,7 +9,7 @@ define('HTTP_UTIL', get_option('wpoa_http_util'));
 define('CLIENT_ENABLED', get_option('wpoa_google_api_enabled'));
 define('CLIENT_ID', get_option('wpoa_google_api_id'));
 define('CLIENT_SECRET', get_option('wpoa_google_api_secret'));
-define('REDIRECT_URI', "http://" . rtrim($_SERVER['SERVER_NAME'], "/") . "/");
+define('REDIRECT_URI', rtrim( get_site_url( 1 ) , "/") . "/" ); //hard coded to get the 1st site's url - assumes blog_id 1 = primary site
 define('SCOPE', 'profile'); // PROVIDER SPECIFIC: 'profile' is the minimum scope required to get the user's id from Google
 define('URL_AUTH', "https://accounts.google.com/o/oauth2/auth?");
 define('URL_TOKEN', "https://accounts.google.com/o/oauth2/token?");
